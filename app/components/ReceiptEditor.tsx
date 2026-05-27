@@ -136,9 +136,8 @@ export default function ReceiptEditor({
   };
 
   const handleItemsChange = (raw: string) => {
-    // Each non-empty line = one item
-    const items = raw.split("\n").map((s) => s.trim());
-    set("items", items);
+    // Split on newlines — preserve spaces so the user can type freely
+    set("items", raw.split("\n"));
   };
 
   return (
