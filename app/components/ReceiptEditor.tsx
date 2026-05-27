@@ -116,7 +116,7 @@ export default function ReceiptEditor({
       </div>
 
       {/* Scrollable form */}
-      <div className="flex-1 overflow-y-auto pr-1">
+      <div className="flex-1 min-h-0 overflow-y-auto pr-1">
         {/* Branding */}
         <Section title="Branding">
           {/* Logo Upload */}

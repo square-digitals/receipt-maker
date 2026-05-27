@@ -91,16 +91,13 @@ export default function Home() {
 
         {/* Right: Editor */}
         <div
-          className="w-full lg:w-[380px] xl:w-[420px] shrink-0"
-          style={{ position: "sticky", top: "16px", maxHeight: "calc(100vh - 100px)" }}
+          className="w-full lg:w-[380px] xl:w-[420px] shrink-0 flex flex-col"
+          style={{ position: "sticky", top: "16px", height: "calc(100vh - 90px)" }}
         >
-          <div className="text-xs text-gray-500 mb-3 uppercase tracking-widest font-semibold">
+          <div className="text-xs text-gray-500 mb-3 uppercase tracking-widest font-semibold shrink-0">
             Settings
           </div>
-          <div
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col"
-            style={{ maxHeight: "calc(100vh - 120px)" }}
-          >
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col min-h-0 flex-1 overflow-hidden">
             <ReceiptEditor
               data={receiptData}
               onChange={setReceiptData}
