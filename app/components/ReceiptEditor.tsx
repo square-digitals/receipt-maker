@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { ReceiptData } from "../types";
 
 // Generate a random order number (4-5 digits)
@@ -122,6 +122,15 @@ export default function ReceiptEditor({
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Local state for the items textarea so React doesn't reset the
+  // cursor on every keystroke (controlled-input cursor-jump issue)
+  const [itemsText, setItemsText] = useState(() => data.items.join("\n"));
+
+  // Keep local text in sync if items are changed from outside (e.g. reset)
+  useEffect(() => {
+    setItemsText(data.items.join("\n"));
+  }, [data.items.join("\n")]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const set = (key: keyof ReceiptData, value: ReceiptData[keyof ReceiptData]) =>
     onChange({ ...data, [key]: value });
 
@@ -136,8 +145,10 @@ export default function ReceiptEditor({
   };
 
   const handleItemsChange = (raw: string) => {
-    // Split on newlines — preserve spaces so the user can type freely
-    set("items", raw.split("\n"));
+    // Update local state immediately (keeps cursor intact)
+    setItemsText(raw);
+    // Sync to parent data
+    onChange({ ...data, items: raw.split("\n") });
   };
 
   return (
@@ -330,7 +341,7 @@ export default function ReceiptEditor({
             </label>
             <textarea
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white text-gray-800 resize-y min-h-[100px]"
-              value={data.items.join("\n")}
+              value={itemsText}
               onChange={(e) => handleItemsChange(e.target.value)}
               placeholder={"Item 1\nItem 2\nItem 3"}
             />
