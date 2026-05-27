@@ -10,23 +10,22 @@ export default function Home() {
   const previewRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPDF = async () => {
-    const el = document.getElementById("receipt-preview");
+    // Target the inner white table, not the grey wrapper
+    const el = document.querySelector("#receipt-preview table") as HTMLElement;
     if (!el) return;
 
-    // Dynamic import to avoid SSR issues
     const html2canvas = (await import("html2canvas")).default;
     const { jsPDF } = await import("jspdf");
 
     const canvas = await html2canvas(el, {
       scale: 2,
       useCORS: true,
-      backgroundColor: "#efefef",
+      backgroundColor: "#ffffff",
       logging: false,
     });
 
     const imgData = canvas.toDataURL("image/png");
 
-    // A4 dimensions in mm
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -36,12 +35,11 @@ export default function Home() {
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    // Calculate image dimensions to fit A4
     const canvasAspect = canvas.height / canvas.width;
     const imgWidth = pageWidth;
     const imgHeight = imgWidth * canvasAspect;
 
-    // Center vertically if shorter than page
+    // Center vertically if receipt is shorter than a full page
     const yOffset = imgHeight < pageHeight ? (pageHeight - imgHeight) / 2 : 0;
 
     pdf.addImage(imgData, "PNG", 0, yOffset, imgWidth, imgHeight);
