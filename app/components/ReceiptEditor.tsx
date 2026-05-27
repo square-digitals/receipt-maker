@@ -3,6 +3,50 @@
 import React, { useRef } from "react";
 import { ReceiptData } from "../types";
 
+// Generate a random order number (4-5 digits)
+function randomOrderNumber() {
+  return String(Math.floor(1000 + Math.random() * 90000));
+}
+
+// Generate a random transaction reference like XXXX-XXXX-XXXX-XXXX
+function randomTxRef() {
+  const seg = () =>
+    Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `${seg()}-${seg()}-${seg()}-${seg()}`;
+}
+
+// Convert a datetime-local string ("2025-04-14T21:00") to "Wed 14/04/2025 9:00PM"
+function formatDatetime(value: string): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const day = days[d.getDay()];
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+  return `${day} ${dd}/${mm}/${yyyy} ${hours}:${minutes}${ampm}`;
+}
+
+// Convert "Wed 14/04/2025 9:00PM" back to "2025-04-14T21:00" for the picker
+function parseDateToISO(formatted: string): string {
+  // Match: "Wed 14/04/2025 9:00PM" or "Wed 14/04/2025 9:00 PM"
+  const m = formatted.match(
+    /\w+\s+(\d{2})\/(\d{2})\/(\d{4})\s+(\d+):(\d{2})\s*(AM|PM)/i
+  );
+  if (!m) return "";
+  const [, dd, mo, yyyy, hRaw, min, ampm] = m;
+  let h = parseInt(hRaw, 10);
+  if (ampm.toUpperCase() === "PM" && h !== 12) h += 12;
+  if (ampm.toUpperCase() === "AM" && h === 12) h = 0;
+  const hh = String(h).padStart(2, "0");
+  return `${yyyy}-${mo}-${dd}T${hh}:${min}`;
+}
+
 interface Props {
   data: ReceiptData;
   onChange: (data: ReceiptData) => void;
@@ -229,18 +273,51 @@ export default function ReceiptEditor({
 
         {/* Order Info */}
         <Section title="Order Info">
-          <Field
-            label="Order Number"
-            value={data.orderNumber}
-            onChange={(v) => set("orderNumber", v)}
-            placeholder="8760"
-          />
-          <Field
-            label="Transaction Reference"
-            value={data.transactionReference}
-            onChange={(v) => set("transactionReference", v)}
-            placeholder="5678-9012-3546-798"
-          />
+          {/* Order Number + generate button */}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Order Number
+              </label>
+              <button
+                onClick={() => set("orderNumber", randomOrderNumber())}
+                className="text-xs text-blue-500 hover:text-blue-700 font-medium flex items-center gap-1 transition-colors"
+                title="Generate random order number"
+              >
+                ↺ Generate
+              </button>
+            </div>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white text-gray-800"
+              value={data.orderNumber}
+              onChange={(e) => set("orderNumber", e.target.value)}
+              placeholder="8760"
+            />
+          </div>
+
+          {/* Transaction Reference + generate button */}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Transaction Reference
+              </label>
+              <button
+                onClick={() => set("transactionReference", randomTxRef())}
+                className="text-xs text-blue-500 hover:text-blue-700 font-medium flex items-center gap-1 transition-colors"
+                title="Generate random reference"
+              >
+                ↺ Generate
+              </button>
+            </div>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white text-gray-800"
+              value={data.transactionReference}
+              onChange={(e) => set("transactionReference", e.target.value)}
+              placeholder="5678-9012-3546-798"
+            />
+          </div>
         </Section>
 
         {/* Transaction Details */}
@@ -259,12 +336,23 @@ export default function ReceiptEditor({
               placeholder={"Item 1\nItem 2\nItem 3"}
             />
           </div>
-          <Field
-            label="Date"
-            value={data.date}
-            onChange={(v) => set("date", v)}
-            placeholder="Wed 14/04/2025 9:00PM"
-          />
+          {/* Date — picker + formatted display */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Date
+            </label>
+            <input
+              type="datetime-local"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white text-gray-800"
+              value={parseDateToISO(data.date)}
+              onChange={(e) => set("date", formatDatetime(e.target.value))}
+            />
+            {data.date && (
+              <p className="text-xs text-gray-400 mt-0.5">
+                Preview: <span className="text-gray-600 font-medium">{data.date}</span>
+              </p>
+            )}
+          </div>
           <Field
             label="Amount"
             value={data.amount}
