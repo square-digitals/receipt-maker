@@ -153,8 +153,26 @@ export default function ReceiptEditor({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Actions */}
-      <div className="flex gap-2 mb-5">
+      {/* PDF filename + actions */}
+      <div className="mb-4 shrink-0">
+        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">
+          PDF Filename
+        </label>
+        <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-400 bg-white">
+          <input
+            type="text"
+            className="flex-1 px-3 py-2 text-sm text-gray-800 outline-none bg-transparent"
+            value={data.pdfFilename}
+            onChange={(e) => set("pdfFilename", e.target.value)}
+            placeholder="receipt"
+          />
+          <span className="px-3 text-sm text-gray-400 border-l border-gray-200 bg-gray-50 py-2 select-none">
+            .pdf
+          </span>
+        </div>
+      </div>
+
+      <div className="flex gap-2 mb-5 shrink-0">
         <button
           onClick={onDownloadPDF}
           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors shadow-sm"

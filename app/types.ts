@@ -24,6 +24,9 @@ export interface ReceiptData {
   // Footer link
   footerLinkText: string;
   footerLinkUrl: string;
+
+  // Export
+  pdfFilename: string;
 }
 
 export const defaultReceiptData: ReceiptData = {
@@ -52,4 +55,6 @@ export const defaultReceiptData: ReceiptData = {
 
   footerLinkText: "Visit Website",
   footerLinkUrl: "#",
+
+  pdfFilename: "receipt",
 };

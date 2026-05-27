@@ -10,7 +10,6 @@ export default function Home() {
   const previewRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPDF = async () => {
-    // Target the inner white table, not the grey wrapper
     const el = document.querySelector("#receipt-preview table") as HTMLElement;
     if (!el) return;
 
@@ -33,17 +32,16 @@ export default function Home() {
     });
 
     const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
     const canvasAspect = canvas.height / canvas.width;
     const imgWidth = pageWidth;
     const imgHeight = imgWidth * canvasAspect;
 
-    // Center vertically if receipt is shorter than a full page
-    const yOffset = imgHeight < pageHeight ? (pageHeight - imgHeight) / 2 : 0;
+    // Start from the top of the page (y = 0)
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
 
-    pdf.addImage(imgData, "PNG", 0, yOffset, imgWidth, imgHeight);
-    pdf.save("receipt.pdf");
+    // Use the user-defined filename, strip .pdf if they typed it
+    const name = (receiptData.pdfFilename || "receipt").replace(/\.pdf$/i, "");
+    pdf.save(`${name}.pdf`);
   };
 
   const handlePrint = () => {
